@@ -9,89 +9,67 @@ body{
   margin:0;
   background:#000;
   color:#fff;
-  text-align:center;
   font-family:Arial, sans-serif;
   overflow:hidden;
 }
 .container{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  z-index:2;
   position:relative;
-  top:50%;
-  transform:translateY(-50%);
 }
-h1{
-  font-size:46px;
-  margin:10px 0;
-}
-#year{
-  font-size:42px;
-  font-weight:bold;
-}
+h1{font-size:46px;}
+#year{font-size:42px;font-weight:bold;}
+
 .bird{
   position:absolute;
   font-size:30px;
   top:40%;
   left:-50px;
   animation:fly 4s linear forwards;
+  z-index:3;
 }
 @keyframes fly{
   to{left:110%;}
 }
-#blast{
-  display:none;
-  font-size:60px;
-  animation:boom 0.6s infinite alternate;
-}
-@keyframes boom{
-  from{transform:scale(1);}
-  to{transform:scale(1.4);}
-}
-.msg{
-  margin-top:25px;
-  font-size:18px;
-}
-.name{
-  margin-top:10px;
-  font-size:16px;
-}
-.share{
-  margin-top:20px;
-}
-.share a{
-  color:#000;
-  background:#fff;
-  padding:10px 18px;
-  border-radius:20px;
-  text-decoration:none;
-  font-weight:bold;
+
+.msg{margin-top:25px;font-size:18px;}
+.name{margin-top:10px;font-size:16px;}
+
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:1;
 }
 </style>
 </head>
 
 <body>
+
+<canvas id="fireworks"></canvas>
+
 <div class="container">
   <h1>🎉 Happy New Year 🎉</h1>
   <div id="year">2025</div>
-  <div id="blast">💥🎆✨</div>
 
-  <!-- ✍️ শুভেচ্ছা বার্তা এখানে বদলাবেন -->
   <div class="msg">
     নতুন বছর আপনার জীবনে সুখ, শান্তি ও সাফল্য বয়ে আনুক
   </div>
 
-  <!-- ✍️ নাম এখানে বদলাবেন -->
   <div class="name">
     — Md Masum
-  </div>
-
-  <div class="share">
-    <a href="https://wa.me/?text=🎉 Happy New Year! শুভ নববর্ষ 🎉">
-      📤 Share on WhatsApp
-    </a>
   </div>
 </div>
 
 <script>
-// 5 birds remove 5
+// birds
 setTimeout(()=>{
   for(let i=0;i<5;i++){
     let b=document.createElement("div");
@@ -102,12 +80,10 @@ setTimeout(()=>{
   }
 },1000);
 
-// change year
 setTimeout(()=>{
   document.getElementById("year").innerText="2026";
 },4000);
 
-// 1 bird bring 6
 setTimeout(()=>{
   let b=document.createElement("div");
   b.className="bird";
@@ -115,10 +91,50 @@ setTimeout(()=>{
   document.body.appendChild(b);
 },4200);
 
-// blast
+// FIREWORKS
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+function random(min,max){return Math.random()*(max-min)+min;}
+
+let particles=[];
+function blast(){
+  let x=random(100,canvas.width-100);
+  let y=random(50,canvas.height/2);
+  for(let i=0;i<80;i++){
+    particles.push({
+      x,y,
+      r:random(2,4),
+      dx:random(-5,5),
+      dy:random(-5,5),
+      life:100,
+      color:`hsl(${random(0,360)},100%,60%)`
+    });
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach((p,i)=>{
+    p.x+=p.dx;
+    p.y+=p.dy;
+    p.life--;
+    ctx.fillStyle=p.color;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+    if(p.life<=0)particles.splice(i,1);
+  });
+  requestAnimationFrame(animate);
+}
+
 setTimeout(()=>{
-  document.getElementById("blast").style.display="block";
+  setInterval(blast,700);
+  animate();
 },5500);
 </script>
+
 </body>
 </html>
